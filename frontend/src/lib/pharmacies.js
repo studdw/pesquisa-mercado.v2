@@ -6,4 +6,4 @@ export const PHARMACIES = [
   { key: "pacheco", label: "Drogarias Pacheco", source: "API" },
   { key: "paguemenos", label: "Pague Menos", source: "API" },
 ];
-export const DEFAULT_PHARMACIES = ["ultrafarma", "drogaraia"];
+export const DEFAULT_PHARMACIES = ["ultrafarma", "drogariasaopaulo"];
