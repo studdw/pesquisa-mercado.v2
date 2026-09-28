@@ -1,0 +1,21 @@
+# Blueprint do Render: New > Blueprint > selecione o repositório
+services:
+  - type: web
+    name: pesquisa-precos-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: API_KEY
+        generateValue: true          # o Render gera uma chave aleatória
+      - key: ALLOWED_ORIGINS
+        value: https://SEU-PROJETO.vercel.app
+      - key: ENABLE_BROWSER
+        value: "false"
+      - key: CACHE_TTL_HOURS
+        value: "8"
+      - key: DATABASE_URL
+        sync: false                  # preencha manualmente (Neon), opcional
