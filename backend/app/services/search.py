@@ -41,7 +41,7 @@ async def _one(client, key: str, molecule: str, force: bool):
     cls = SCRAPERS[key]
     storage = get_storage()
     cache_key = f"{key}:{molecule.lower().strip()}"
-    if not force and (cached := storage.get_cache(cache_key)) is not None:
+    if not force and (cached := storage.get_cache(cache_key)):
         prods = [Product(**p) for p in cached]
         return prods, PharmacyStatus(pharmacy=cls.label, ok=True, count=len(prods), cached=True)
     try:
@@ -53,7 +53,8 @@ async def _one(client, key: str, molecule: str, force: bool):
             if p.name not in best or (p.price or 1e9) < (best[p.name].price or 1e9):
                 best[p.name] = p
         prods = list(best.values())
-        storage.set_cache(cache_key, [p.model_dump() for p in prods])
+        if prods:  # não guarda resultado vazio no cache
+            storage.set_cache(cache_key, [p.model_dump() for p in prods])
         storage.save_history([p.model_dump() for p in prods])
         return prods, PharmacyStatus(pharmacy=cls.label, ok=True, count=len(prods))
     except BlockedError as e:
