@@ -143,17 +143,66 @@ class DrogaRaia(HtmlScraper):
     search_url = "https://www.drogaraia.com.br/search?w={q}"
 
 
+_UF_ID = re.compile(r'data-product-id="(\d+)"')
+UF_PAGE_PARAMS = ["pagina", "page", "p", "pg", "pageNumber", "numeroPagina"]
+UF_MAX_PAGES = 15   # teto de segurança: ~180 produtos por molécula
+
+
 class Ultrafarma(HtmlScraper):
     key, label = "ultrafarma", "Ultrafarma"
     base_url = "https://www.ultrafarma.com.br"
     search_url = "https://www.ultrafarma.com.br/busca?q={q}"
+    _page_param: str | None = "pg"   # parâmetro de página usado pela Ultrafarma (?pg=2)
 
-    async def search(self, molecule: str) -> list:
+    async def _get(self, url: str):
         await self.throttle()
-        url = self.search_url.format(q=quote(molecule))
         resp = await self.client.get(url, headers=self.headers(), follow_redirects=True)
         self.check_blocked(resp)
-        return extract_ultrafarma(resp.text, self.base_url)
+        return resp
+
+    @staticmethod
+    def _page_url(url: str, param: str, n: int) -> str:
+        return f"{url}{'&' if '?' in url else '?'}{param}={n}"
+
+    async def search(self, molecule: str) -> list:
+        first = await self._get(self.search_url.format(q=quote(molecule)))
+        base = str(first.url)                      # ex.: .../lp/losartana
+        html_pages = [first.text]
+        seen = set(_UF_ID.findall(first.text))
+        if not seen:
+            return []
+
+        # descobre o parâmetro de página (só na 1ª vez)
+        cls = type(self)
+        candidates = [cls._page_param] if cls._page_param else UF_PAGE_PARAMS
+        param = None
+        for p in candidates:
+            r = await self._get(self._page_url(base, p, 2))
+            new = set(_UF_ID.findall(r.text)) - seen
+            if new:
+                param = cls._page_param = p
+                html_pages.append(r.text)
+                seen |= new
+                break
+
+        # percorre as próximas páginas até não aparecer produto novo
+        if param:
+            for n in range(3, UF_MAX_PAGES + 1):
+                r = await self._get(self._page_url(base, param, n))
+                new = set(_UF_ID.findall(r.text)) - seen
+                if not new:
+                    break
+                html_pages.append(r.text)
+                seen |= new
+
+        items = [i for html in html_pages for i in extract_ultrafarma(html, self.base_url)]
+        uniq, keys = [], set()
+        for i in items:
+            k = (i["name"].lower(), i["price"])
+            if k not in keys:
+                keys.add(k)
+                uniq.append(i)
+        return uniq
 
 _PRICE = r"R\$\s*([\d.]+,\d{2})"
 _POR = re.compile(r"\bPor\s*" + _PRICE, re.I)

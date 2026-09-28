@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     database_url: str = ""                          # vazio = SQLite local (efêmero no Render)
     cache_ttl_hours: float = 8.0                    # plano: cache de 6-12h
     enable_browser: bool = False                    # liga scrapers com Playwright (exige Docker)
-    request_timeout: float = 20.0
+    request_timeout: float = 30.0
     min_delay: float = 0.8                          # rate limiting entre requisições por farmácia
     max_delay: float = 2.0
     max_molecules_per_request: int = 15
