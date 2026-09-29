@@ -22,14 +22,6 @@ class Settings(BaseSettings):
     def origins(self) -> list[str]:
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
-=======
-cmed_icms: str = "18"   # alíquota de ICMS (SP).
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
 
 @lru_cache
 def get_settings() -> Settings:
