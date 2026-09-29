@@ -16,11 +16,16 @@ class Settings(BaseSettings):
     min_delay: float = 0.8                          # rate limiting entre requisições por farmácia
     max_delay: float = 2.0
     max_molecules_per_request: int = 15
+    cmed_icms: str = "18"   # alíquota de ICMS (SP).
 
     @property
     def origins(self) -> list[str]:
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 @lru_cache
 def get_settings() -> Settings:

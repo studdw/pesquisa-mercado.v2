@@ -67,7 +67,10 @@ async def run_search(molecules: list[str], pharmacies: list[str], force: bool = 
     s = get_settings()
     start = time.monotonic()
     molecules = list(dict.fromkeys(m.strip() for m in molecules if m.strip()))[: s.max_molecules_per_request]
+    unknown = [p for p in pharmacies if p not in SCRAPERS]
     pharmacies = [p for p in pharmacies if p in SCRAPERS]
+    if not pharmacies:
+        raise ValueError(f"Nenhuma fonte válida. Não registradas: {unknown or pharmacies}")
     async with httpx.AsyncClient(timeout=s.request_timeout, http2=False) as client:
         tasks = [_one(client, ph, mol, force) for mol in molecules for ph in pharmacies]
         done = await asyncio.gather(*tasks)
