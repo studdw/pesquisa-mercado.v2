@@ -1,5 +1,6 @@
-"""Para adicionar uma farmácia: crie a classe (VtexScraper ou HtmlScraper) e registre aqui."""
-from .html_generic import DrogaRaia, Ultrafarma
+from .html_generic import Ultrafarma
 from .vtex import DrogariaSaoPaulo, Pacheco, PagueMenos
 
-SCRAPERS = {cls.key: cls for cls in (Ultrafarma, DrogaRaia, DrogariaSaoPaulo, Pacheco, PagueMenos)}
+# Drogaraia removida: o site bloqueia acesso automatizado (403 Access Denied).
+# Para incluir a rede, o caminho é acesso oficial via RaiaDrogasil.
+SCRAPERS = {cls.key: cls for cls in (Ultrafarma, DrogariaSaoPaulo, Pacheco, PagueMenos)}
