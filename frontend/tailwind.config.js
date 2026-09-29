@@ -4,19 +4,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Tema Libbs
+        // Verde Libbs — ações principais
         brand: {
-          50: "#eef4ff",   // fundos suaves
-          100: "#dbe7ff",  // hover leve
-          500: "#0049FF",  // azul Libbs — ações principais
-          600: "#0040e0",  // hover de botão
-          700: "#516D7F",  // cinza-azulado — cabeçalho e títulos
-          900: "#3a4f5c",  // texto escuro / hover do header
+          50: "#eefaef",   // fundos suaves
+          100: "#d3f2d6",  // hover leve
+          500: "#23C02E",  // verde Libbs — botões e seleção
+          600: "#1da627",  // hover de botão
+          700: "#178c20",  // ícone do cabeçalho
+          900: "#116619",  // hover escuro
         },
+        // Cinza-azulado — textos, títulos e elementos secundários
         accent: {
-          50: "#e9f9eb",
-          500: "#23C02E",  // verde Libbs — sucesso, descontos, status online
-          600: "#1da627",
+          50: "#f4f6f7",
+          500: "#516D7F",
+          600: "#455c6b",
+          700: "#3a4f5c",
         },
       },
       fontFamily: { sans: ["var(--font-inter)", "system-ui", "sans-serif"] },
