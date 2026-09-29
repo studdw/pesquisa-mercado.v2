@@ -98,7 +98,7 @@ class CmedCatalog:
 
     @staticmethod
     def _discover() -> Path | None:
-        for pat in ("cmed*.xlsx", "cmed*.xls", "*cmed*.xlsx", "*cmed*.xls"):
+        for pat in ("cmed*.parquet", "cmed*.xlsx", "cmed*.xls", "*cmed*.xlsx", "*cmed*.xls"):
             hits = sorted(glob.glob(str(DATA / pat)))
             if hits:
                 return Path(hits[-1])
@@ -116,6 +116,16 @@ class CmedCatalog:
         return None
 
     def _load(self) -> None:
+        if self.path.suffix.lower() == ".parquet":
+            self.df = pd.read_parquet(self.path)
+            c = self._cols
+            for k in ("substance", "product", "presentation", "lab", "kind", "ean", "pf", "tarja", "register"):
+                c[k] = k if k in self.df.columns else None
+            c["pmc"] = {col[4:]: col for col in self.df.columns if col.startswith("pmc_")}
+            self._idx_sub = self.df["substance"].fillna("").map(_n)
+            self._idx_prod = self.df["product"].fillna("").map(_n) if c["product"] else None
+            self.competencia = self.path.stem
+            return
         engine = "xlrd" if self.path.suffix.lower() == ".xls" else "openpyxl"
         raw = pd.read_excel(self.path, header=None, nrows=200, engine=engine, dtype=str)
         self.header_row = _find_header(raw)
