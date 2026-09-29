@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     """Público — usado pelo frontend para 'acordar' o Render e pelo ping do GitHub Actions."""
     return {"status": "ok", "browser": get_settings().enable_browser}
