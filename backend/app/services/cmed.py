@@ -42,7 +42,6 @@ def _to_float(v) -> float | None:
         return None
 
 
-<<<<<<< HEAD
 # Nomes de coluna da planilha. Cada um deve ser uma CÉLULA inteira — os parágrafos
 # legais do topo citam "substância"/"produto" no meio do texto e enganariam a busca.
 _HEADER_HINTS = (
@@ -66,15 +65,6 @@ def _find_header(raw: pd.DataFrame, min_hits: int = 4, max_cell_len: int = 60) -
     if best is not None and best_hits >= 2:
         return best
     raise ValueError(f"cabeçalho da planilha CMED não encontrado (melhor linha={best}, hits={best_hits})")
-=======
-def _find_header(raw: pd.DataFrame) -> int:
-    """A planilha da CMED tem ~30 linhas de texto legal antes do cabeçalho real."""
-    for i in range(min(80, len(raw))):
-        row = " | ".join(_n(c) for c in raw.iloc[i].tolist())
-        if "substancia" in row and ("produto" in row or "apresentacao" in row):
-            return i
-    raise ValueError("cabeçalho da planilha CMED não encontrado")
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
 
 
 @dataclass
@@ -83,11 +73,7 @@ class CmedItem:
     product: str
     presentation: str
     laboratory: str
-<<<<<<< HEAD
     kind: str
-=======
-    kind: str          # tipo de produto (Genérico/Similar/Novo/Biológico)
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
     ean: str | None
     pf: float | None
     pmc: float | None
@@ -103,24 +89,16 @@ class CmedCatalog:
         self.df: pd.DataFrame | None = None
         self.path = path or self._discover()
         self.competencia: str | None = None
-<<<<<<< HEAD
         self.header_row: int | None = None
         self._cols: dict = {}
         self._idx_sub = None
         self._idx_prod = None
-=======
-        self._cols: dict = {}
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
         if self.path and self.path.exists():
             self._load()
 
     @staticmethod
     def _discover() -> Path | None:
-<<<<<<< HEAD
         for pat in ("cmed*.xlsx", "cmed*.xls", "*cmed*.xlsx", "*cmed*.xls"):
-=======
-        for pat in ("cmed*.xlsx", "cmed*.xls", "*cmed*.xlsx"):
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
             hits = sorted(glob.glob(str(DATA / pat)))
             if hits:
                 return Path(hits[-1])
@@ -128,26 +106,17 @@ class CmedCatalog:
 
     @property
     def available(self) -> bool:
-<<<<<<< HEAD
         return self.df is not None and not self.df.empty and self._idx_sub is not None
-=======
-        return self.df is not None and not self.df.empty
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
 
     def _pick(self, *patterns: str) -> str | None:
         for p in patterns:
             for col in self.df.columns:
-<<<<<<< HEAD
                 if re.match(p, _n(col)):
-=======
-                if re.search(p, _n(col)):
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
                     return col
         return None
 
     def _load(self) -> None:
         engine = "xlrd" if self.path.suffix.lower() == ".xls" else "openpyxl"
-<<<<<<< HEAD
         raw = pd.read_excel(self.path, header=None, nrows=200, engine=engine, dtype=str)
         self.header_row = _find_header(raw)
         self.df = pd.read_excel(self.path, header=self.header_row, engine=engine, dtype=str)
@@ -164,28 +133,12 @@ class CmedCatalog:
         c["ean"] = self._pick(r"^ean ?1", r"^ean")
         c["pf"] = self._pick(r"^pf ?18", r"^pf sem impostos", r"^pf ?\d")
         c["tarja"] = self._pick(r"^tarja")
-=======
-        raw = pd.read_excel(self.path, header=None, nrows=80, engine=engine, dtype=str)
-        hdr = _find_header(raw)
-        self.df = pd.read_excel(self.path, header=hdr, engine=engine, dtype=str)
-        self.df = self.df.dropna(how="all")
-        c = self._cols
-        c["substance"] = self._pick(r"^substancia")
-        c["product"] = self._pick(r"^produto")
-        c["presentation"] = self._pick(r"apresentacao")
-        c["lab"] = self._pick(r"laboratorio")
-        c["kind"] = self._pick(r"tipo de produto")
-        c["ean"] = self._pick(r"^ean ?1", r"^ean")
-        c["pf"] = self._pick(r"^pf ?18", r"^pf sem impostos")
-        c["tarja"] = self._pick(r"tarja")
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
         c["register"] = self._pick(r"^registro")
         c["pmc"] = {}
         for col in self.df.columns:
             m = re.match(r"pmc ?(\d+(?:[.,]\d+)?) ?%", _n(col))
             if m:
                 key = m.group(1).replace(",", ".")
-<<<<<<< HEAD
                 if "." in key:
                     key = key.rstrip("0").rstrip(".")
                 c["pmc"][key or "0"] = col
@@ -197,13 +150,6 @@ class CmedCatalog:
             )
 
         self._idx_sub = self.df[c["substance"]].fillna("").map(_n)
-=======
-                if "." in key:                      # 17.50 -> 17.5 ; 17.0 -> 17
-                    key = key.rstrip("0").rstrip(".")
-                c["pmc"][key or "0"] = col
-        # índice normalizado para busca
-        self._idx_sub = self.df[c["substance"]].fillna("").map(_n) if c["substance"] else None
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
         self._idx_prod = self.df[c["product"]].fillna("").map(_n) if c["product"] else None
         self.competencia = self.path.stem
 
@@ -218,11 +164,7 @@ class CmedCatalog:
             return []
         mask = self._idx_sub.str.contains(t, regex=False, na=False)
         if self._idx_prod is not None:
-<<<<<<< HEAD
             mask = mask | self._idx_prod.str.contains(t, regex=False, na=False)
-=======
-            mask |= self._idx_prod.str.contains(t, regex=False, na=False)
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
         rows = self.df[mask].head(limit)
         c = self._cols
         pmc_col = c["pmc"].get(icms) or c["pmc"].get(DEFAULT_ICMS) or (list(c["pmc"].values()) or [None])[0]
@@ -231,27 +173,15 @@ class CmedCatalog:
             ean = str(r.get(c["ean"]) or "").strip() if c["ean"] else None
             out.append(CmedItem(
                 substance=str(r.get(c["substance"]) or "").strip(),
-<<<<<<< HEAD
                 product=str(r.get(c["product"]) or "").strip() if c["product"] else "",
                 presentation=str(r.get(c["presentation"]) or "").strip() if c["presentation"] else "",
                 laboratory=str(r.get(c["lab"]) or "").strip() if c["lab"] else "",
                 kind=str(r.get(c["kind"]) or "").strip() if c["kind"] else "",
-=======
-                product=str(r.get(c["product"]) or "").strip(),
-                presentation=str(r.get(c["presentation"]) or "").strip(),
-                laboratory=str(r.get(c["lab"]) or "").strip(),
-                kind=str(r.get(c["kind"]) or "").strip(),
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
                 ean=ean if ean and ean.lower() != "nan" else None,
                 pf=_to_float(r.get(c["pf"])) if c["pf"] else None,
                 pmc=_to_float(r.get(pmc_col)) if pmc_col else None,
                 icms=icms,
-<<<<<<< HEAD
                 tarja=(str(r.get(c["tarja"]) or "").strip() or None) if c["tarja"] else None,
                 register=(str(r.get(c["register"]) or "").strip() or None) if c["register"] else None,
-=======
-                tarja=str(r.get(c["tarja"]) or "").strip() or None if c["tarja"] else None,
-                register=str(r.get(c["register"]) or "").strip() or None if c["register"] else None,
->>>>>>> ccfe3e16ba6099472490a9035c8e335de79f5ce8
             ))
         return out
