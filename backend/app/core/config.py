@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     def origins(self) -> list[str]:
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
+cmed_icms: str = "18"   # alíquota de ICMS (SP).
 
 @lru_cache
 def get_settings() -> Settings:
