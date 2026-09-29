@@ -9,3 +9,6 @@ psycopg==3.2.13
 psycopg-binary==3.2.13
 playwright==1.49.1
 playwright-stealth==1.0.6
+pandas>=2.2
+openpyxl>=3.1
+xlrd>=2.0
