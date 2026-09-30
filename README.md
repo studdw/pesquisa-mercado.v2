@@ -4,8 +4,6 @@ Sistema web que pesquisa o preço de medicamentos por **molécula (princípio at
 
 **Frontend:** Next.js + Tailwind (Vercel) · **Backend:** FastAPI + Playwright (Render) · **Acesso:** [farmaciaslibbs.vercel.app](https://farmaciaslibbs.vercel.app) (protegido por senha do time)
 
-![Tela da v2](docs/tela-v2.png)
-
 ---
 
 ## Da v1 para a v2
