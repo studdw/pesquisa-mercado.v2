@@ -1,11 +1,1 @@
-# Mantém o Render acordado em horário comercial (seg-sex, 8h-19h de Brasília)
-name: keepalive-render
-on:
-  schedule:
-    - cron: "*/10 11-22 * * 1-5"
-  workflow_dispatch:
-jobs:
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - run: curl -fsS --max-time 90 "${{ secrets.RENDER_HEALTH_URL }}" || true
+
